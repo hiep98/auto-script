@@ -1,6 +1,6 @@
 # script auto install package for vm
-sudo apt get update && upgrade
-sudo apt install python3-pip
+sudo apt get update && upgrade -y
+sudo apt install python3-pip -y
 
 # for kali
 sudo apt install remmina
