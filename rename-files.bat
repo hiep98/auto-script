@@ -1,14 +1,18 @@
-#Reanme bulk file in folder
-
+:: Rename bulk file in folder
 @echo off
 setlocal enabledelayedexpansion
 
-:: Set the current directory as the working directory
-:: cd /d "%cd%"
 
 :: Prompt user for the directory
-echo Enter the full path of the folder:
-set /p "folderpath="
+:: echo Enter the full path of the folder:
+:: set /p "folderpath="
+
+
+:: Set folderpath to the current directory
+set "folderpath=%cd%"
+
+:: Verify the folderpath
+echo Folder path: %folderpath%
 
 :: Check if the directory exists
 if not exist "%folderpath%" (
@@ -17,13 +21,20 @@ if not exist "%folderpath%" (
     exit /b
 )
 
-:: Change to the user-specified directory
-cd /d "%folderpath%"
+:: Change to the folderpath (we're already in it, but ensure we're set)
+cd /d "%folderpath%" || (
+    echo Unable to change to directory "%folderpath%". Exiting...
+    pause
+    exit /b
+)
 
 :: Loop through all files in the folder
 for %%F in (*.*) do (
     set "filename=%%F"
-    set "newname=!filename:~19!"
+	:: remove 19 last characters
+	set "newname=!filename:~19!"
+	:: remove _Replace text in file name
+    set "newname=!filename:_Replace=!"
 
     if not "!filename!"=="!newname!" (
         echo Renaming "%%F" to "!newname!"
