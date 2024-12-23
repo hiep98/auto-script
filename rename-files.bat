@@ -1,31 +1,34 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Rename files and folders in one loop
+:: Start the renaming process
 :renameItems
 set "changesMade=false"
-for /f "tokens=* delims=" %%I in ('dir /s /b /o-n') do (
-    set "itemName=%%~nxI"
-    set "newItemName=!itemName:[@CybeS] -=!"
 
-    if not "!itemName!"=="!newItemName!" (
-        if exist "%%I\" (
-            set "newFolderName=!newItemName!"
-            echo Renaming folder: "%%I" to "%%~dpI!newFolderName!"
-            pushd "%%~dpI" >nul
-            ren "%%~nxI" "!newFolderName!"
-            popd >nul
-        ) else (
-            set "newFileName=!newItemName!"
-            echo Renaming file: "%%I" to "%%~dpI!newFileName!"
-            ren "%%I" "!newFileName!"
-        )
+:: Loop through all files and folders in the current directory and subdirectories
+for /f "delims=" %%I in ('dir /s /b /o-n') do (
+    :: Extract the file/folder name and create the new name by replacing "[@CybeS]" with " -="
+    set "newName=%%~nxI"
+    set "newName=!newName:[@CybeS] -=!"
+
+    :: If the new name is different from the original, rename the item
+    if not "%%~nxI"=="!newName!" (
+        :: Display the rename operation (for user feedback)
+        echo Renaming: %%I to %%~dpI!newName!
+        
+        :: Rename the file or folder
+        ren "%%I" "!newName!"
+
+        :: Mark that changes have been made
         set "changesMade=true"
     )
 )
 
-:: Repeat renaming if changes were made
+:: If any renaming was done, repeat the process to ensure all items are renamed
 if "%changesMade%"=="true" goto renameItems
 
+:: Final message once all renaming is complete
 echo All matching names have been processed.
+
+:: Wait for user to press any key before closing
 pause
