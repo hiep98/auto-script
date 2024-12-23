@@ -1,46 +1,32 @@
-:: Rename bulk file in folder
 @echo off
 setlocal enabledelayedexpansion
 
-
-:: Prompt user for the directory
-:: echo Enter the full path of the folder:
-:: set /p "folderpath="
-
-
-:: Set folderpath to the current directory
-set "folderpath=%cd%"
-
-:: Verify the folderpath
-echo Folder path: %folderpath%
-
-:: Check if the directory exists
-if not exist "%folderpath%" (
-    echo The directory "%folderpath%" does not exist. Exiting...
-    pause
-    exit /b
-)
-
-:: Change to the folderpath (we're already in it, but ensure we're set)
-cd /d "%folderpath%" || (
-    echo Unable to change to directory "%folderpath%". Exiting...
-    pause
-    exit /b
-)
-
-:: Loop through all files in the folder
-for %%F in (*.*) do (
-    set "filename=%%F"
-	:: remove 19 last characters
-	set "newname=!filename:~19!"
-	:: remove _Replace text in file name
-    set "newname=!filename:_Replace=!"
-
-    if not "!filename!"=="!newname!" (
-        echo Renaming "%%F" to "!newname!"
-        ren "%%F" "!newname!"
+:: Rename files first
+for /f "tokens=* delims=" %%F in ('dir /s /b /a-d /o-n') do (
+    set "fileName=%%~nxF"
+    set "newFileName=!fileName:[@CyberBankSa] -=!"
+    if not "!fileName!"=="!newFileName!" (
+        echo Renaming file: "%%F" to "%%~dpF!newFileName!"
+        ren "%%F" "!newFileName!"
     )
 )
 
-endlocal
+:: Rename folders iteratively until no changes are left
+:renameFolders
+set "changesMade=false"
+for /f "tokens=* delims=" %%D in ('dir /s /b /ad /o-n') do (
+    set "folderName=%%~nxD"
+    set "newFolderName=!folderName:[@CybeS] -=!"
+    if not "!folderName!"=="!newFolderName!" (
+        echo Renaming folder: "%%D" to "%%~dpD!newFolderName!"
+        pushd "%%~dpD" >nul
+        ren "%%~nxD" "!newFolderName!"
+        popd >nul
+        set "changesMade=true"
+    )
+)
+
+if "%changesMade%"=="true" goto renameFolders
+
+echo All matching names have been processed.
 pause
