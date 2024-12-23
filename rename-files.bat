@@ -7,13 +7,18 @@ set "changesMade=false"
 for /f "tokens=* delims=" %%I in ('dir /s /b /o-n') do (
     set "itemName=%%~nxI"
     set "newItemName=!itemName:[@CybeS] -=!"
+
     if not "!itemName!"=="!newItemName!" (
         if exist "%%I\" (
+            set "newFolderName=!newItemName!"
+            echo Renaming folder: "%%I" to "%%~dpI!newFolderName!"
             pushd "%%~dpI" >nul
-            ren "%%~nxI" "!newItemName!"
+            ren "%%~nxI" "!newFolderName!"
             popd >nul
         ) else (
-            ren "%%I" "!newItemName!"
+            set "newFileName=!newItemName!"
+            echo Renaming file: "%%I" to "%%~dpI!newFileName!"
+            ren "%%I" "!newFileName!"
         )
         set "changesMade=true"
     )
