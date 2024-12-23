@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 :: Rename files first
 for /f "tokens=* delims=" %%F in ('dir /s /b /a-d /o-n') do (
     set "fileName=%%~nxF"
-    set "newFileName=!fileName:[@CyberBankSa] -=!"
+    set "newFileName=!fileName:[@CybeS] -=!"
     if not "!fileName!"=="!newFileName!" (
         echo Renaming file: "%%F" to "%%~dpF!newFileName!"
         ren "%%F" "!newFileName!"
