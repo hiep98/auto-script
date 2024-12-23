@@ -7,7 +7,7 @@ set "changesMade=false"
 
 :: Loop through all files and folders in the current directory and subdirectories
 for /f "delims=" %%I in ('dir /s /b /o-n') do (
-    :: Extract the file/folder name and create the new name by replacing "[@CybeS]" with " -="
+    :: Extract the file/folder name and create the new name by replacing "[@CybeS] -"
     set "newName=%%~nxI"
     set "newName=!newName:[@CybeS] -=!"
 
