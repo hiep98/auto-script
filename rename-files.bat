@@ -1,34 +1,44 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Start the renaming process
+:: Function to rename items (files and folders)
 :renameItems
-set "changesMade=false"
 
-:: Loop through all files and folders in the current directory and subdirectories
-for /f "delims=" %%I in ('dir /s /b /o-n') do (
-    :: Extract the file/folder name and create the new name by replacing "[@CybeS] -"
-    set "newName=%%~nxI"
-    set "newName=!newName:[@CybeS] -=!"
-
-    :: If the new name is different from the original, rename the item
-    if not "%%~nxI"=="!newName!" (
-        :: Display the rename operation (for user feedback)
-        echo Renaming: %%I to %%~dpI!newName!
-        
-        :: Rename the file or folder
-        ren "%%I" "!newName!"
-
-        :: Mark that changes have been made
-        set "changesMade=true"
+:: Loop through all files (including subdirectories) that have [@CybeS] in the name
+for /r %%I in (*[@CybeS]*) do (
+    :: Extract the filename (name and extension) from the full path
+    set "itemName=%%~nxI"
+    
+    :: Replace [@CybeS] with -= in the filename
+    set "newItemName=!itemName:[@CybeS] -=!"
+    
+    :: If the filename is different after renaming, perform the renaming
+    if not "!itemName!"=="!newItemName!" (
+        :: Check if the file's directory exists (to prevent errors)
+        if not "%%~dpI"=="" (
+            echo Renaming "%%I" to "%%~dpI!newItemName!"
+            ren "%%I" "!newItemName!"
+        )
     )
 )
 
-:: If any renaming was done, repeat the process to ensure all items are renamed
-if "%changesMade%"=="true" goto renameItems
+:: Loop through all directories (including subdirectories) that have [@CybeS] in the name
+for /d /r %%I in (*[@CybeS]*) do (
+    :: Extract the folder name from the full directory path
+    set "itemName=%%~nxI"
+    
+    :: Replace [@CybeS] with -= in the folder name
+    set "newItemName=!itemName:[@CybeS] -=!"
+    
+    :: If the folder name is different after renaming, perform the renaming
+    if not "!itemName!"=="!newItemName!" (
+        :: Use pushd to change the directory before renaming the folder
+        pushd "%%~dpI" >nul
+        echo Renaming folder "%%I" to "%%~dpI!newItemName!"
+        ren "%%~nxI" "!newItemName!"
+        popd >nul 
+    )
+)
 
-:: Final message once all renaming is complete
 echo All matching names have been processed.
-
-:: Wait for user to press any key before closing
 pause
